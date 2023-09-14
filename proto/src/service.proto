@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "message.proto";
+
+service StreamService {
+  rpc Upload (stream UpstreamMessage) returns (google.protobuf.Empty) {}
+  rpc Download (google.protobuf.Empty) returns (stream DownstreamMessage) {}
+  rpc Duplex (stream UpstreamMessage) returns (stream DownstreamMessage) {}
+}

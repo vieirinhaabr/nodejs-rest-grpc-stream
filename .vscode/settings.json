@@ -1,0 +1,17 @@
+{
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.quickSuggestions": {
+      "comments": true
+    },
+    "[feature]": {
+      "editor.defaultFormatter": "alexkrechik.cucumberautocomplete"
+    },
+    "importCost.debug": false
+  }
+  

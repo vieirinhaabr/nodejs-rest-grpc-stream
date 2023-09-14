@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message UpstreamMessage {
+  string data = 1;
+  string filename = 2;
+}
+
+message DownstreamMessage {
+  string data = 1;
+}
