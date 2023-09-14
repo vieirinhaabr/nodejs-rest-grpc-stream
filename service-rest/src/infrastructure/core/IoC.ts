@@ -27,12 +27,12 @@ export default class IoC {
 
   async build(): Promise<void> {
     // UseCases
-    this.logger.debug(`📦 [IoC] [UseCases] => ${ELoggerCollors.GRAY} Build`);
+    this.logger.debug(`📦  [IoC] [UseCases] => ${ELoggerCollors.GRAY} Build`);
     const usecases = await getFilesFromPath<any>(this.config.paths.useCases);
     for (const { file: usecase, name } of usecases) {
       if (!usecase) continue;
 
-      this.logger.debug(`📦 [IoC] [UseCase] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`📦  [IoC] [UseCase] [create] => ${ELoggerCollors.GRAY} ${name}`);
       this.container.bind(Symbol.for(name)).to(usecase);
     }
   }

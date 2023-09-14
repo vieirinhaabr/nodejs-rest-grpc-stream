@@ -15,17 +15,17 @@ export default class GrpcModule extends Module {
   }
 
   private async configureServer(): Promise<void> {
-    this.logger.debug(`📦 [GrpcModule] => ${ELoggerCollors.GRAY} Configure`);
+    this.logger.debug(`📦  [GrpcModule] => ${ELoggerCollors.GRAY} Configure`);
   }
 
   async start(): Promise<void> {
-    this.logger.debug(`🕹️ [GrpcModule] [Client] => ${ELoggerCollors.GRAY} Start`);
+    this.logger.debug(`🕹️  [GrpcModule] [Client] => ${ELoggerCollors.GRAY} Start`);
 
     const clients = await getFilesFromPath<typeof GrpcClient>(this.config.paths.grpc.clients);
     for (const { file: client, name } of clients) {
       if (!client) continue;
 
-      this.logger.debug(`🕹️ [GrpcModule] [Client] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  [GrpcModule] [Client] [create] => ${ELoggerCollors.GRAY} ${name}`);
       this.container.bind(Symbol.for(name)).toConstantValue(client.build(this.config));
     }
 
@@ -33,12 +33,12 @@ export default class GrpcModule extends Module {
     for (const { file: action, name } of actions) {
       if (!action) continue;
 
-      this.logger.debug(`🕹️ [GrpcModule] [Client] [Action] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  [GrpcModule] [Client] [Action] [create] => ${ELoggerCollors.GRAY} ${name}`);
       this.container.bind(Symbol.for(name)).to(action);
     }
   }
 
   async stop(): Promise<void> {
-    this.logger.debug(`🛑 [GrpcModule] [Client] => ${ELoggerCollors.GRAY} Stop`);
+    this.logger.debug(`🛑  [GrpcModule] [Client] => ${ELoggerCollors.GRAY} Stop`);
   }
 }

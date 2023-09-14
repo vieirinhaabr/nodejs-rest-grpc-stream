@@ -34,9 +34,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async upload(call: ServerReadableStream<UpstreamMessage, Empty>, cb: sendUnaryData<Empty>): Promise<void> {
     try {
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [upload] => receive call`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [upload] => receive call`);
 
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [upload]  => use case`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [upload]  => use case`);
       await this.upStreamUseCase.execute({
         stream: call,
         onData: function (chunk: UpstreamMessage) {
@@ -46,10 +46,10 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
       const response = GrpcPresenter.toEmpty();
 
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [upload] => finished`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [upload] => finished`);
       cb(null, response);
     } catch (error) {
-      this.logger.error(`📨 [GrpcModule] [Server] [StreamGrpcService] [upload] => error`);
+      this.logger.error(`📨  [GrpcModule] [Server] [StreamGrpcService] [upload] => error`);
       this.logger.error(String(error));
       cb(GrpcPresenter.toError(error), null);
     }
@@ -57,9 +57,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async download(cb: ServerWritableStream<Empty, DownstreamMessage>): Promise<void> {
     try {
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [download] => receive call`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [download] => receive call`);
 
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [download]  => use case`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [download]  => use case`);
       const stream = this.downStreamUseCase.execute();
 
       await this.sendByStream(
@@ -71,9 +71,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
         stream,
       );
 
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [download] => finished`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [download] => finished`);
     } catch (error) {
-      this.logger.error(`📨 [GrpcModule] [Server] [StreamGrpcService] [download] => error`);
+      this.logger.error(`📨  [GrpcModule] [Server] [StreamGrpcService] [download] => error`);
       this.logger.error(String(error));
       cb.destroy(GrpcPresenter.toError(error));
     }
@@ -81,9 +81,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async duplex(call: ServerDuplexStream<UpstreamMessage, DownstreamMessage>): Promise<void> {
     try {
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [duplex] => receive call`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [duplex] => receive call`);
 
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [duplex]  => use case`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [duplex]  => use case`);
       const stream = await this.duplexStreamUseCase.execute({
         stream: call,
         onData: function (chunk: UpstreamMessage) {
@@ -100,9 +100,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
         stream,
       );
 
-      this.logger.info(`📨 [GrpcModule] [Server] [StreamGrpcService] [duplex] => finished`);
+      this.logger.info(`📨  [GrpcModule] [Server] [StreamGrpcService] [duplex] => finished`);
     } catch (error) {
-      this.logger.error(`📨 [GrpcModule] [Server] [StreamGrpcService] [duplex] => error`);
+      this.logger.error(`📨  [GrpcModule] [Server] [StreamGrpcService] [duplex] => error`);
       this.logger.error(String(error));
       call.destroy(GrpcPresenter.toError(error));
     }

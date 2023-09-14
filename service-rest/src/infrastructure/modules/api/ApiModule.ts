@@ -24,7 +24,7 @@ export default class ApiModule extends Module {
   }
 
   private async configureServer(): Promise<void> {
-    this.logger.debug(`📦 [ApiModule] => ${ELoggerCollors.GRAY} Configure`);
+    this.logger.debug(`📦  [ApiModule] => ${ELoggerCollors.GRAY} Configure`);
 
     this.app = express();
     this.app.use(express.json());
@@ -38,7 +38,7 @@ export default class ApiModule extends Module {
   }
 
   async start(): Promise<void> {
-    this.logger.debug(`🕹️ [ApiModule] [Server] => ${ELoggerCollors.GRAY} Start`);
+    this.logger.debug(`🕹️  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Start`);
 
     const { prefix = "", port } = this.config.api;
 
@@ -46,7 +46,7 @@ export default class ApiModule extends Module {
     for (const { file: middleware, name } of middlewares) {
       if (!middleware) continue;
 
-      this.logger.debug(`🕹️ [ApiModule] [Server] [Middleware] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  [ApiModule] [Server] [Middleware] [create] => ${ELoggerCollors.GRAY} ${name}`);
       this.container.bind(Symbol.for(name)).to(middleware);
     }
 
@@ -55,7 +55,7 @@ export default class ApiModule extends Module {
     for (const { file: rawController, name } of controllers) {
       if (!rawController) continue;
 
-      this.logger.debug(`🕹️ ${baseLogger} [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  ${baseLogger} [create] => ${ELoggerCollors.GRAY} ${name}`);
       this.container.bind(Symbol.for(name)).to(rawController);
 
       const service = this.container.get(Symbol.for(name));
@@ -80,7 +80,7 @@ export default class ApiModule extends Module {
         }
 
         const path = concatPaths(prefix, controller.path, route.path);
-        this.logger.debug(`📂 ${baseLogger} [route] => ${ELoggerCollors.CIAN} ${route.method.toUpperCase()} ${path}`);
+        this.logger.debug(`📂  ${baseLogger} [route] => ${ELoggerCollors.CIAN} ${route.method.toUpperCase()} ${path}`);
 
         router[route.method](path, ...middlewares, route.handler);
       }
@@ -90,20 +90,20 @@ export default class ApiModule extends Module {
 
     return new Promise((resolve) => {
       this.server.listen(port, () => {
-        this.logger.info(`🌐 [ApiModule] [Server] => ${ELoggerCollors.GREEN} Listening on port ${port}`);
+        this.logger.info(`🌐  [ApiModule] [Server] => ${ELoggerCollors.GREEN} Listening on port ${port}`);
         resolve();
       });
     });
   }
 
   async stop(): Promise<void> {
-    this.logger.debug(`🛑 [ApiModule] [Server] => ${ELoggerCollors.GRAY} Stop`);
+    this.logger.debug(`🛑  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Stop`);
 
     return new Promise((resolve, reject) => {
       this.server.close((err) => {
         if (err) {
           this.logger.error(
-            `🛑 [ApiModule] [Server] => ${ELoggerCollors.GRAY} Could not close connection ${err.message}`,
+            `🛑  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Could not close connection ${err.message}`,
           );
           reject(err);
         } else {

@@ -15,10 +15,10 @@ const buildModules = async (ioc: IoC, logger: ILogger) => {
     fg.sync(resolvePath(...config.paths.modules)).map(async (file) => (await import(`${file}`)).default),
   );
 
-  logger.debug(`⚙️ [run] [modules] => ${ELoggerCollors.GRAY} Build`);
+  logger.debug(`⚙️  [run] [modules] => ${ELoggerCollors.GRAY} Build`);
   const buildedModules: Array<Module> = await Promise.all(modules.map((module) => module.build(ioc.getContainer())));
 
-  logger.debug(`⚙️ [run] [modules] => ${ELoggerCollors.GRAY} Start`);
+  logger.debug(`⚙️  [run] [modules] => ${ELoggerCollors.GRAY} Start`);
   for (const module of buildedModules) {
     await module.start();
   }
@@ -26,7 +26,7 @@ const buildModules = async (ioc: IoC, logger: ILogger) => {
 
 async function run(): Promise<void> {
   const logger = createLogger();
-  logger.info(`🚧 [run] => ${ELoggerCollors.GRAY} Init`);
+  logger.info(`🚧  [run] => ${ELoggerCollors.GRAY} Init`);
   const ioc = new IoC(logger, config);
   ioc.build();
   const container = ioc.getContainer();
@@ -37,7 +37,7 @@ async function run(): Promise<void> {
 
   await buildModules(ioc, logger);
 
-  logger.info(`🚧 [run] => ${ELoggerCollors.GRAY} Finish`);
+  logger.info(`🚧  [run] => ${ELoggerCollors.GRAY} Finish`);
 }
 
 // eslint-disable-next-line prettier/prettier
