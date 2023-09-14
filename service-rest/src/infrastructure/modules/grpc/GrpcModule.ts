@@ -18,7 +18,7 @@ export default class GrpcModule extends Module {
     this.logger.debug(`📦  [GrpcModule] => ${ELoggerCollors.GRAY} Configure`);
   }
 
-  async start(): Promise<void> {
+  async out(): Promise<void> {
     this.logger.debug(`🕹️  [GrpcModule] [Client] => ${ELoggerCollors.GRAY} Start`);
 
     const clients = await getFilesFromPath<typeof GrpcClient>(this.config.paths.grpc.clients);

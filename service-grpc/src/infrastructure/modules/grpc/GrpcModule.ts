@@ -5,6 +5,7 @@ import getFilesFromPath from "@utils/getFilesFromPath";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
 import { Container } from "inversify";
 import { ELoggerCollors } from "@core/Logger";
+import StreamGrpcService from "./services/StreamGrpcService";
 
 export default class GrpcModule extends Module {
   private server!: Server;
@@ -21,7 +22,7 @@ export default class GrpcModule extends Module {
     this.server = new Server();
   }
 
-  async start(): Promise<void> {
+  async in(): Promise<void> {
     this.logger.debug(`🕹️  [GrpcModule] [Server] => ${ELoggerCollors.GRAY} Start`);
 
     const definitions = await getFilesFromPath<any>(this.config.paths.grpc.definitions);
@@ -29,9 +30,13 @@ export default class GrpcModule extends Module {
     for (const { file: service, name } of services) {
       if (!service) continue;
 
-      this.logger.debug(`🕹️  [GrpcModule] [Server] [Service] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      const baseLogger = "[GrpcModule] [Server] [Service]";
+      this.logger.debug(`🕹️  ${baseLogger} [create] => ${ELoggerCollors.GRAY} ${name}`);
       const { file: definition } = definitions.find((file) => file.name === name);
       this.container.bind(Symbol.for(name)).to(service);
+
+      for (const { path } of Object.values(definition) as any)
+        this.logger.debug(`📂  ${baseLogger} [route] => ${ELoggerCollors.CIAN} ${path}`);
       this.server.addService(definition, this.container.get(Symbol.for(name)));
     }
 

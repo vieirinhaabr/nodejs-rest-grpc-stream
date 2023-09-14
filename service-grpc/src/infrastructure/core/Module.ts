@@ -19,8 +19,12 @@ export default class Module {
     throw new Error("build method not implemented.");
   }
 
-  start(): Promise<void> {
-    throw new Error("start method not implemented.");
+  in(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  out(): Promise<void> {
+    return Promise.resolve();
   }
 
   stop(): Promise<void> {

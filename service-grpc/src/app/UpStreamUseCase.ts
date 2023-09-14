@@ -11,7 +11,8 @@ export default class UpStreamUseCase implements IUpStreamUseCase {
     const { stream, onData } = params;
     let filename: string = null;
 
-    const path = __dirname + "/../../arc/" + "upload";
+    const basePath = __dirname + "/../../arc/";
+    const path = basePath + "upload";
     removeFileFromPath(path);
     const file = createWriteStream(path, { encoding: "base64" });
 
@@ -26,9 +27,12 @@ export default class UpStreamUseCase implements IUpStreamUseCase {
         })
         .on("close", () => {
           file.end();
-          const newPath = path + "." + filename.split(".").reverse()[0];
-          removeFileFromPath(newPath);
-          renameSync(path, newPath);
+
+          if (filename) {
+            const newPath = basePath + filename;
+            removeFileFromPath(newPath);
+            renameSync(path, newPath);
+          }
 
           resolve();
         })

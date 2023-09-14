@@ -5,7 +5,6 @@ import { ReadStream } from "fs";
 
 export interface IDuplexStreamParams {
   stream: ReadStream;
-  filename?: string;
 }
 
 export type IDuplexStreamResponse = Stream;

@@ -12,9 +12,10 @@ export default class DuplexStreamUseCase implements IDuplexStreamUseCase {
     const { stream, onData } = params;
     let filename: string = null;
 
-    const downPath = __dirname + "/../../arc/" + "upload";
-    removeFileFromPath(downPath);
-    const file = createWriteStream(downPath, { encoding: "base64" });
+    const basePath = __dirname + "/../../arc/";
+    const upPath = basePath + "upload";
+    removeFileFromPath(upPath);
+    const file = createWriteStream(upPath, { encoding: "base64" });
 
     await new Promise(function (resolve, reject) {
       stream
@@ -29,22 +30,25 @@ export default class DuplexStreamUseCase implements IDuplexStreamUseCase {
         .on("status", (status: string) => {
           if (status === "ended") {
             file.end();
-            const newPath = downPath + "." + filename.split(".").reverse()[0];
-            removeFileFromPath(newPath);
-            renameSync(downPath, newPath);
+
+            if (filename) {
+              const newPath = basePath + filename;
+              removeFileFromPath(newPath);
+              renameSync(upPath, newPath);
+            }
 
             resolve(null);
           }
         })
         .on("error", (err: Error) => {
           file.end();
-          removeFileFromPath(downPath);
+          removeFileFromPath(upPath);
           reject(err);
         });
     });
 
-    const upPath = __dirname + "/../../arc/" + "download.csv";
-    const upStream = createReadStream(upPath);
+    const downPath = __dirname + "/../../arc/" + "download.csv";
+    const upStream = createReadStream(downPath);
     return upStream;
   }
 }

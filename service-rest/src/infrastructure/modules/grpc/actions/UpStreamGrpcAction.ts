@@ -3,9 +3,12 @@ import { IUpStreamGrpcAction, IUpStreamParams } from "@interface/IUpStream";
 import TYPES from "@core/Types";
 import { ServiceError } from "@grpc/grpc-js";
 import { Transform, TransformCallback } from "stream";
+import { isEmpty } from "lodash";
 
-import { StreamController } from "../controllers/StreamController";
+import { StreamGrpcController } from "../controllers/StreamGrpcController";
 import { IStreamServiceClient } from "../../../../../../proto/dist";
+import { IStreamHeaders } from "../interfaces/IStreamHeaders";
+import { getStreamHeaders, ignoreChunk } from "../utils/streamHeader";
 
 @injectable()
 export default class UpStreamGrpcAction implements IUpStreamGrpcAction {
@@ -15,11 +18,11 @@ export default class UpStreamGrpcAction implements IUpStreamGrpcAction {
   ) {}
 
   async call(params: IUpStreamParams): Promise<void> {
-    const { stream, filename } = params;
-    const start = this.service.upload;
+    const { stream } = params;
+    const service = this.service;
 
     return new Promise(function (resolve, reject) {
-      const call = start(function (error: ServiceError) {
+      const call = service.upload(function (error: ServiceError) {
         if (error) {
           stream.destroy();
           reject(error);
@@ -28,11 +31,19 @@ export default class UpStreamGrpcAction implements IUpStreamGrpcAction {
         }
       });
 
+      let headers: IStreamHeaders = null;
       const transform = new Transform({
         transform: (chunk: Uint8Array, _e: BufferEncoding, callback: TransformCallback) => {
-          const request = StreamController.toUpstreamMessage({
+          if (isEmpty(headers)) {
+            headers = getStreamHeaders(chunk);
+            return callback();
+          } else if (ignoreChunk(headers, chunk)) {
+            return callback();
+          }
+
+          const request = StreamGrpcController.toUpstreamMessage({
             data: Buffer.from(chunk).toString("base64"),
-            filename,
+            filename: headers?.filename,
           });
           call.write(request, callback);
         },

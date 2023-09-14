@@ -18,9 +18,14 @@ const buildModules = async (ioc: IoC, logger: ILogger) => {
   logger.debug(`⚙️  [run] [modules] => ${ELoggerCollors.GRAY} Build`);
   const buildedModules: Array<Module> = await Promise.all(modules.map((module) => module.build(ioc.getContainer())));
 
-  logger.debug(`⚙️  [run] [modules] => ${ELoggerCollors.GRAY} Start`);
+  logger.debug(`⚙️  [run] [modules] => ${ELoggerCollors.GRAY} Start output`);
   for (const module of buildedModules) {
-    await module.start();
+    await module.out();
+  }
+
+  logger.debug(`⚙️  [run] [modules] => ${ELoggerCollors.GRAY} Start entry`);
+  for (const module of buildedModules) {
+    await module.in();
   }
 };
 

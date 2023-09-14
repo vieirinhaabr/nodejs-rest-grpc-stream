@@ -1,10 +1,10 @@
 import { NotFoundError, ValidationError } from "@core/error/errors";
 import { GrpcInternalServerError, GrpcNotFound, GrpcValidationError } from "@core/error/grpc";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { EmptyMessage } from "../../../../../../proto/dist";
 
 export class GrpcPresenter {
-  static toEmpty(): Empty {
-    return new Empty();
+  static toEmpty(): EmptyMessage {
+    return new EmptyMessage();
   }
 
   static toError(error: Error): GrpcValidationError | GrpcNotFound | GrpcInternalServerError {

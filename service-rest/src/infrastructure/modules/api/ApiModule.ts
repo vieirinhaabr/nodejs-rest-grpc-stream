@@ -10,8 +10,7 @@ import concatPaths from "@utils/concatPaths";
 import { ELoggerCollors } from "@core/Logger";
 
 import { ApiMiddleware } from "./middlewares/ApiMiddleware";
-import { IRouter } from "./interfaces/IRouter";
-import { IRoute } from "./interfaces/IRoute";
+import { RouteFactory } from "./factories/RouteFactory";
 
 export default class ApiModule extends Module {
   server: Server;
@@ -29,15 +28,18 @@ export default class ApiModule extends Module {
     this.app = express();
     this.app.use(express.json());
     this.app.use(
-      morgan(":method :url :status :response-time ms => :res[content-length]", {
-        stream: { write: (message) => this.logger.info(message.substring(0, message.lastIndexOf("\n"))) },
-      }),
+      morgan(
+        `📨  [ApiModule] [Server] => ${ELoggerCollors.PINK}[:status] ${ELoggerCollors.CIAN}:method :url ${ELoggerCollors.GRAY}:response-time ms - :user-agent`,
+        {
+          stream: { write: (message) => this.logger.info(message.substring(0, message.lastIndexOf("\n"))) },
+        },
+      ),
     );
 
     this.server = createServer(this.app);
   }
 
-  async start(): Promise<void> {
+  async in(): Promise<void> {
     this.logger.debug(`🕹️  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Start`);
 
     const { prefix = "", port } = this.config.api;
@@ -51,7 +53,7 @@ export default class ApiModule extends Module {
     }
 
     const controllers = await getFilesFromPath<any>(this.config.paths.api.controllers);
-    const baseLogger = "[ApiModule] [Server] [Controller] ";
+    const baseLogger = "[ApiModule] [Server] [Controller]";
     for (const { file: rawController, name } of controllers) {
       if (!rawController) continue;
 
@@ -59,8 +61,8 @@ export default class ApiModule extends Module {
       this.container.bind(Symbol.for(name)).to(rawController);
 
       const service = this.container.get(Symbol.for(name));
-      const controller = this.createController(service);
-      const routes = this.createRoutes(service);
+      const controller = RouteFactory.createController(service);
+      const routes = RouteFactory.createRoutes(service);
 
       const router = express.Router();
 
@@ -111,44 +113,5 @@ export default class ApiModule extends Module {
         }
       });
     });
-  }
-
-  private createController(controller: any): IRouter {
-    const prototype = Object.getPrototypeOf(controller);
-
-    const type = Reflect.getMetadata("type", prototype);
-    if (type === "router") {
-      const path = Reflect.getMetadata("path", prototype);
-      const middleware = Reflect.getMetadata("middleware", prototype);
-
-      return { path, middleware };
-    }
-
-    throw new Error("This class is not a router instance");
-  }
-
-  private createRoutes(controller: any): IRoute[] {
-    const prototype = Object.getPrototypeOf(controller);
-    const properties = Object.getOwnPropertyNames(prototype);
-
-    const routes: IRoute[] = [];
-    for (const property of properties) {
-      const descriptor = Object.getOwnPropertyDescriptor(prototype, property);
-
-      const type = Reflect.getMetadata("type", descriptor.value);
-      if (type === "route") {
-        const path = Reflect.getMetadata("path", descriptor.value);
-        const method = Reflect.getMetadata("method", descriptor.value);
-        const middleware = Reflect.getMetadata("middleware", descriptor.value);
-
-        routes.push({ method, path, handler: controller[property].bind(controller), middleware });
-      }
-    }
-
-    if (!routes.length) {
-      throw new Error("This class has no routes defined");
-    }
-
-    return routes;
   }
 }

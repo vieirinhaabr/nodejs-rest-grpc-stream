@@ -3,8 +3,8 @@ import TYPES from "@core/Types";
 import { IDownStreamGrpcAction, IDownStreamResponse } from "@interface/IDownStream";
 import { Transform, TransformCallback } from "stream";
 
-import { Controller } from "../controllers/Controller";
-import { StreamPresenter } from "../presenters/StreamPresenter";
+import { GrpcController } from "../controllers/GrpcController";
+import { StreamGrpcPresenter } from "../presenters/StreamGrpcPresenter";
 import { DownstreamMessage, IStreamServiceClient } from "../../../../../../proto/dist";
 
 @injectable()
@@ -15,13 +15,13 @@ export default class DownStreamGrpcAction implements IDownStreamGrpcAction {
   ) {}
 
   async call(): Promise<IDownStreamResponse> {
-    const request = Controller.toEmptyRequest();
+    const request = GrpcController.toEmptyRequest();
     const call = this.service.download(request);
 
     const transform = new Transform({
       objectMode: true,
       transform(chunk: DownstreamMessage, _e: BufferEncoding, callback: TransformCallback) {
-        const data = String(typeof chunk === "object" ? StreamPresenter.fromDownstreamMessage(chunk) : chunk);
+        const data = String(typeof chunk === "object" ? StreamGrpcPresenter.fromDownstreamMessage(chunk) : chunk);
         callback(null, data);
       },
     });

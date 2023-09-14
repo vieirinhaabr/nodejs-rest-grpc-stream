@@ -5,7 +5,7 @@ export interface IStreamDataReceived {
   filename?: string;
 }
 
-export class StreamController {
+export class StreamGrpcController {
   static toUpstreamMessage(params: IStreamDataReceived): UpstreamMessage {
     const { data, filename } = params;
 

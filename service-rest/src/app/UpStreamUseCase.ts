@@ -10,6 +10,6 @@ export default class UpStreamUseCase implements IUpStreamUseCase {
   ) {}
 
   async execute(params: IUpStreamParams): Promise<void> {
-    return this.action.call(params);
+    return await this.action.call(params);
   }
 }
