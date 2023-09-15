@@ -4,7 +4,7 @@ import { Container } from "inversify";
 import getFilesFromPath from "@utils/getFilesFromPath";
 
 import { IAppConfig } from "./AppConfig";
-import { ELoggerCollors, ILogger } from "./Logger";
+import { colors, ILogger } from "./Logger";
 
 export default class IoC {
   private logger: ILogger;
@@ -27,12 +27,12 @@ export default class IoC {
 
   async build(): Promise<void> {
     // UseCases
-    this.logger.debug(`📦  [IoC] [UseCases] => ${ELoggerCollors.GRAY} Build`);
+    this.logger.debug(`📦  [IoC] [UseCases] => ${colors.gray("Build")}`);
     const usecases = await getFilesFromPath<any>(this.config.paths.useCases);
     for (const { file: usecase, name } of usecases) {
       if (!usecase) continue;
 
-      this.logger.debug(`📦  [IoC] [UseCase] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`📦  [IoC] [UseCase] [create] => ${colors.gray(name)}`);
       this.container.bind(Symbol.for(name)).to(usecase);
     }
   }

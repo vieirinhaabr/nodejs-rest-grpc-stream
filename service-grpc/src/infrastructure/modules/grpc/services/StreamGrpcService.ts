@@ -1,6 +1,6 @@
 import TYPES from "@core/Types";
 import { inject, injectable } from "inversify";
-import { ELoggerCollors, ILogger } from "@core/Logger";
+import { colors, ILogger } from "@core/Logger";
 import {
   ServerReadableStream,
   ServerWritableStream,
@@ -31,17 +31,16 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
     super();
   }
 
-  private baseLogger = (fun: string) =>
-    `📨  [GrpcModule] [Server] => ${ELoggerCollors.CIAN} StreamGrpcService.${fun} ${ELoggerCollors.GRAY}`;
+  private baseLogger = (fun: string) => `📨  [GrpcModule] [Server] => ${colors.info(`StreamGrpcService.${fun}`)} `;
 
   async upload(
     call: ServerReadableStream<UpstreamMessage, EmptyMessage>,
     cb: sendUnaryData<EmptyMessage>,
   ): Promise<void> {
     try {
-      this.logger.info(`${this.baseLogger("upload")} receive call`);
+      this.logger.info(`${this.baseLogger("upload")} ${colors.gray("receive call")}`);
 
-      this.logger.info(`${this.baseLogger("upload")} use case`);
+      this.logger.info(`${this.baseLogger("upload")} ${colors.gray("use case")}`);
       await this.upStreamUseCase.execute({
         stream: call,
         onData: function (chunk: UpstreamMessage) {
@@ -51,10 +50,10 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
       const response = GrpcPresenter.toEmpty();
 
-      this.logger.info(`${this.baseLogger("upload")} finished`);
+      this.logger.info(`${this.baseLogger("upload")} ${colors.gray("finished")}`);
       cb(null, response);
     } catch (error) {
-      this.logger.error(`${this.baseLogger("upload")} error`);
+      this.logger.error(`${this.baseLogger("upload")} ${colors.gray("error")}`);
       this.logger.error(String(error));
       cb(GrpcPresenter.toError(error), null);
     }
@@ -62,9 +61,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async download(cb: ServerWritableStream<EmptyMessage, DownstreamMessage>): Promise<void> {
     try {
-      this.logger.info(`${this.baseLogger("download")} receive call`);
+      this.logger.info(`${this.baseLogger("download")} ${colors.gray("receive call")}`);
 
-      this.logger.info(`${this.baseLogger("download")} use case`);
+      this.logger.info(`${this.baseLogger("download")} ${colors.gray("use case")}`);
       const stream = this.downStreamUseCase.execute();
 
       await this.sendByStream(
@@ -76,9 +75,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
         stream,
       );
 
-      this.logger.info(`${this.baseLogger("download")} finished`);
+      this.logger.info(`${this.baseLogger("download")} ${colors.gray("finished")}`);
     } catch (error) {
-      this.logger.error(`${this.baseLogger("download")} error`);
+      this.logger.error(`${this.baseLogger("download")} ${colors.gray("error")}`);
       this.logger.error(String(error));
       cb.destroy(GrpcPresenter.toError(error));
     }
@@ -86,9 +85,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async duplex(call: ServerDuplexStream<UpstreamMessage, DownstreamMessage>): Promise<void> {
     try {
-      this.logger.info(`${this.baseLogger("duplex")} receive call`);
+      this.logger.info(`${this.baseLogger("duplex")} ${colors.gray("receive call")}`);
 
-      this.logger.info(`${this.baseLogger("duplex")} use case`);
+      this.logger.info(`${this.baseLogger("duplex")} ${colors.gray("use case")}`);
       const stream = await this.duplexStreamUseCase.execute({
         stream: call,
         onData: function (chunk: UpstreamMessage) {
@@ -105,9 +104,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
         stream,
       );
 
-      this.logger.info(`${this.baseLogger("duplex")} finished`);
+      this.logger.info(`${this.baseLogger("duplex")} ${colors.gray("finished")}`);
     } catch (error) {
-      this.logger.error(`${this.baseLogger("duplex")} error`);
+      this.logger.error(`${this.baseLogger("duplex")} ${colors.gray("error")}`);
       this.logger.error(String(error));
       call.destroy(GrpcPresenter.toError(error));
     }

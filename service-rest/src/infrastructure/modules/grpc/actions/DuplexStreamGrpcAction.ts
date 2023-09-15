@@ -26,13 +26,11 @@ export default class DuplexStreamGrpcAction implements IDuplexStreamGrpcAction {
       let filename: string = null;
       const transform = new Transform({
         transform: (chunk: Uint8Array, _e: BufferEncoding, callback: TransformCallback) => {
-          call.write(
-            StreamGrpcController.toUpstreamMessage({
-              data: Buffer.from(chunk).toString("base64"),
-              filename,
-            }),
-            callback,
-          );
+          const request = StreamGrpcController.toUpstreamMessage({
+            data: Buffer.from(chunk).toString("base64"),
+            filename,
+          });
+          call.write(request, callback);
         },
       });
 

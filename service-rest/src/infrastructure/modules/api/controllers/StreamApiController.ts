@@ -6,10 +6,10 @@ import { IUpStreamUseCase } from "@interface/IUpStream";
 import { IDownStreamUseCase } from "@interface/IDownStream";
 import { IDuplexStreamUseCase } from "@interface/IDuplexStream";
 import { ReadStream } from "fs";
+import { Stream } from "stream";
 
 import { Get, Post, Router } from "../decorators";
 import DefaultApiMiddleware from "../middlewares/DefaultApiMiddleware";
-import busboy from "busboy";
 
 @injectable()
 @Router("/stream", DefaultApiMiddleware.name)
@@ -27,17 +27,18 @@ export default class StreamApiController {
   }
 
   @Get("/downstream")
-  async downstream(req: Request, res: Response): Promise<void> {
-    throw new Error("rerer");
-    //const stream = await this.downStreamUseCase.execute();
-    //res.attachment("file.csv");
-    //stream.pipe(res);
+  async downstream(_req: Request, res: Response): Promise<Stream> {
+    const stream = await this.downStreamUseCase.execute();
+    res.attachment("file.csv");
+    stream.pipe(res);
+    return stream;
   }
 
   @Post("/duplex")
-  async duplex(req: Request, res: Response): Promise<void> {
-    const body = req.body;
-    this.logger.info(JSON.stringify(body));
-    res.json().send();
+  async duplex(req: Request & ReadStream, res: Response): Promise<Stream> {
+    const stream = await this.duplexStreamUseCase.execute({ req });
+    res.attachment("file.csv");
+    stream.pipe(res);
+    return stream;
   }
 }

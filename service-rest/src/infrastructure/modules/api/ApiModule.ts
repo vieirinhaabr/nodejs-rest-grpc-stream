@@ -5,10 +5,8 @@ import getFilesFromPath from "@utils/getFilesFromPath";
 import { Container } from "inversify";
 import express, { Express } from "express";
 import { createServer, Server } from "http";
-import morgan from "morgan";
 import concatPaths from "@utils/concatPaths";
-import { ELoggerCollors } from "@core/Logger";
-import TYPES from "@core/Types";
+import { colors } from "@core/Logger";
 
 import { ApiMiddleware } from "./middlewares/ApiMiddleware";
 import { RouteFactory } from "./factories/RouteFactory";
@@ -25,24 +23,16 @@ export default class ApiModule extends Module {
   }
 
   private async configureServer(): Promise<void> {
-    this.logger.debug(`📦  [ApiModule] => ${ELoggerCollors.GRAY} Configure`);
+    this.logger.debug(`📦  [ApiModule] => ${colors.gray("Configure")}`);
 
     this.app = express();
     this.app.use(express.json());
-    this.app.use(
-      morgan(
-        `📨  [ApiModule] [Server] => ${ELoggerCollors.PINK}[:status] ${ELoggerCollors.CIAN}:method :url ${ELoggerCollors.GRAY}:response-time ms - :user-agent`,
-        {
-          stream: { write: (message) => this.logger.info(message.substring(0, message.lastIndexOf("\n"))) },
-        },
-      ),
-    );
 
     this.server = createServer(this.app);
   }
 
   async in(): Promise<void> {
-    this.logger.debug(`🕹️  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Start`);
+    this.logger.debug(`🕹️  [ApiModule] [Server] => ${colors.gray("Start")} `);
 
     const { prefix = "", port } = this.config.api;
 
@@ -50,16 +40,15 @@ export default class ApiModule extends Module {
     for (const { file: middleware, name } of middlewares) {
       if (!middleware) continue;
 
-      this.logger.debug(`🕹️  [ApiModule] [Server] [Middleware] [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  [ApiModule] [Server] [Middleware] [create] => ${colors.gray(name)}`);
       this.container.bind(Symbol.for(name)).to(middleware);
     }
 
     const controllers = await getFilesFromPath<any>(this.config.paths.api.controllers);
-    const pLog = "[ApiModule] [Server] [Controller]";
     for (const { file: rawController, name } of controllers) {
       if (!rawController) continue;
 
-      this.logger.debug(`🕹️  ${pLog} [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  [ApiModule] [Server] [Controller] [create] => ${colors.gray(name)}`);
       this.container.bind(Symbol.for(name)).to(rawController);
 
       const service = this.container.get(Symbol.for(name));
@@ -84,7 +73,8 @@ export default class ApiModule extends Module {
         }
 
         const path = concatPaths(prefix, controller.path, route.path);
-        this.logger.debug(`📂  ${pLog} [route] => ${ELoggerCollors.CIAN} ${route.method.toUpperCase()} ${path}`);
+        const log = `${route.method.toUpperCase()} ${path}`;
+        this.logger.info(`📂  [ApiModule] [Server] [Controller] [route] => ${colors.info(log)}`);
         router[route.method](path, ...middlewares, CallFactory.createHandle(this.logger, route.handler));
       }
 
@@ -93,21 +83,19 @@ export default class ApiModule extends Module {
 
     return new Promise((resolve) => {
       this.server.listen(port, () => {
-        this.logger.info(`🌐  [ApiModule] [Server] => ${ELoggerCollors.GREEN} Listening on port ${port}`);
+        this.logger.info(`🌐  [ApiModule] [Server] => ${colors.success(`Listening on port ${port}`)}`);
         resolve();
       });
     });
   }
 
   async stop(): Promise<void> {
-    this.logger.debug(`🛑  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Stop`);
+    this.logger.debug(`🛑  [ApiModule] [Server] => Stop}`);
 
     return new Promise((resolve, reject) => {
       this.server.close((err) => {
         if (err) {
-          this.logger.error(
-            `🛑  [ApiModule] [Server] => ${ELoggerCollors.GRAY} Could not close connection ${err.message}`,
-          );
+          this.logger.error(`🛑  [ApiModule] [Server] => Could not close connection ${err.message}`);
           reject(err);
         } else {
           resolve();

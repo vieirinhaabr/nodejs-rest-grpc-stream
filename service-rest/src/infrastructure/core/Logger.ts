@@ -1,4 +1,5 @@
-import winston from "winston";
+import winston, { format, Logform, transports } from "winston";
+import { redBright, yellowBright, greenBright, cyanBright, magentaBright, blackBright, blueBright } from "cli-color";
 
 export interface ILogger {
   info: (message: string) => ILogger;
@@ -8,23 +9,25 @@ export interface ILogger {
   log: (message: string) => ILogger;
 }
 
+const formatLog = format.printf(({ level, message }: Logform.TransformableInfo) => {
+  let msg = `${level}: ${message}`;
+  return msg;
+});
+
 export const createLogger = (): ILogger => {
   return winston.createLogger({
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-        level: "debug",
-      }),
-    ],
+    format: format.combine(format.colorize(), format.simple(), formatLog),
+    level: "debug",
+    transports: [new transports.Console()],
   }) as any;
 };
 
-export enum ELoggerCollors {
-  GREEN = "\x1b[32m",
-  GRAY = "\x1b[30m",
-  CIAN = "\x1b[36m",
-  RED = "\x1b[31m",
-  YELLOW = "\x1b[33m",
-  PURPLE = "\x1b[34m",
-  PINK = "\x1b[35m",
-}
+export const colors = {
+  error: redBright,
+  warn: yellowBright,
+  success: greenBright,
+  info: cyanBright,
+  magenta: magentaBright,
+  gray: blackBright,
+  blue: blueBright,
+};
