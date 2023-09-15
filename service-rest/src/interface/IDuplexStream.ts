@@ -2,9 +2,10 @@ import { IAction } from "@core/Action";
 import { IUseCase } from "@core/UseCase";
 import { Stream } from "stream";
 import { ReadStream } from "fs";
+import { Request } from "express";
 
 export interface IDuplexStreamParams {
-  stream: ReadStream;
+  req: Request & ReadStream;
 }
 
 export type IDuplexStreamResponse = Stream;

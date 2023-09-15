@@ -8,9 +8,11 @@ import { createServer, Server } from "http";
 import morgan from "morgan";
 import concatPaths from "@utils/concatPaths";
 import { ELoggerCollors } from "@core/Logger";
+import TYPES from "@core/Types";
 
 import { ApiMiddleware } from "./middlewares/ApiMiddleware";
 import { RouteFactory } from "./factories/RouteFactory";
+import { CallFactory } from "./factories/CallFactory";
 
 export default class ApiModule extends Module {
   server: Server;
@@ -53,11 +55,11 @@ export default class ApiModule extends Module {
     }
 
     const controllers = await getFilesFromPath<any>(this.config.paths.api.controllers);
-    const baseLogger = "[ApiModule] [Server] [Controller]";
+    const pLog = "[ApiModule] [Server] [Controller]";
     for (const { file: rawController, name } of controllers) {
       if (!rawController) continue;
 
-      this.logger.debug(`🕹️  ${baseLogger} [create] => ${ELoggerCollors.GRAY} ${name}`);
+      this.logger.debug(`🕹️  ${pLog} [create] => ${ELoggerCollors.GRAY} ${name}`);
       this.container.bind(Symbol.for(name)).to(rawController);
 
       const service = this.container.get(Symbol.for(name));
@@ -82,9 +84,8 @@ export default class ApiModule extends Module {
         }
 
         const path = concatPaths(prefix, controller.path, route.path);
-        this.logger.debug(`📂  ${baseLogger} [route] => ${ELoggerCollors.CIAN} ${route.method.toUpperCase()} ${path}`);
-
-        router[route.method](path, ...middlewares, route.handler);
+        this.logger.debug(`📂  ${pLog} [route] => ${ELoggerCollors.CIAN} ${route.method.toUpperCase()} ${path}`);
+        router[route.method](path, ...middlewares, CallFactory.createHandle(this.logger, route.handler));
       }
 
       this.app.use(router);

@@ -9,6 +9,7 @@ import { ReadStream } from "fs";
 
 import { Get, Post, Router } from "../decorators";
 import DefaultApiMiddleware from "../middlewares/DefaultApiMiddleware";
+import busboy from "busboy";
 
 @injectable()
 @Router("/stream", DefaultApiMiddleware.name)
@@ -21,18 +22,16 @@ export default class StreamApiController {
   ) {}
 
   @Post("/upstream")
-  async upstream(req: Request & ReadStream, res: Response): Promise<void> {
-    this.upStreamUseCase
-      .execute({ stream: req })
-      .then(() => res.status(201).send())
-      .catch((err) => res.status(500).json(err).send());
+  async upstream(req: Request & ReadStream): Promise<void> {
+    return this.upStreamUseCase.execute({ req });
   }
 
   @Get("/downstream")
   async downstream(req: Request, res: Response): Promise<void> {
-    const body = req.body;
-    this.logger.info(JSON.stringify(body));
-    res.json().send();
+    throw new Error("rerer");
+    //const stream = await this.downStreamUseCase.execute();
+    //res.attachment("file.csv");
+    //stream.pipe(res);
   }
 
   @Post("/duplex")

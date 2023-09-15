@@ -1,4 +1,5 @@
 export interface IStreamHeaders {
   filename: string;
-  hash: string;
+  encoding: string;
+  mimeType: string;
 }

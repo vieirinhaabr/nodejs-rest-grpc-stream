@@ -30,13 +30,13 @@ export default class GrpcModule extends Module {
     for (const { file: service, name } of services) {
       if (!service) continue;
 
-      const baseLogger = "[GrpcModule] [Server] [Service]";
-      this.logger.debug(`🕹️  ${baseLogger} [create] => ${ELoggerCollors.GRAY} ${name}`);
+      const pLog = "[GrpcModule] [Server] [Service]";
+      this.logger.debug(`🕹️  ${pLog} [create] => ${ELoggerCollors.GRAY} ${name}`);
       const { file: definition } = definitions.find((file) => file.name === name);
       this.container.bind(Symbol.for(name)).to(service);
 
       for (const { path } of Object.values(definition) as any)
-        this.logger.debug(`📂  ${baseLogger} [route] => ${ELoggerCollors.CIAN} ${path}`);
+        this.logger.debug(`📂  ${pLog} [route] => ${ELoggerCollors.CIAN} ${path}`);
       this.server.addService(definition, this.container.get(Symbol.for(name)));
     }
 

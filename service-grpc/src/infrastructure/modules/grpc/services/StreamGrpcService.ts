@@ -31,16 +31,17 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
     super();
   }
 
-  private baseLogger = `📨  [GrpcModule] [Server] => ${ELoggerCollors.CIAN} StreamGrpcService.upload ${ELoggerCollors.GRAY}`;
+  private baseLogger = (fun: string) =>
+    `📨  [GrpcModule] [Server] => ${ELoggerCollors.CIAN} StreamGrpcService.${fun} ${ELoggerCollors.GRAY}`;
 
   async upload(
     call: ServerReadableStream<UpstreamMessage, EmptyMessage>,
     cb: sendUnaryData<EmptyMessage>,
   ): Promise<void> {
     try {
-      this.logger.info(`${this.baseLogger} receive call`);
+      this.logger.info(`${this.baseLogger("upload")} receive call`);
 
-      this.logger.info(`${this.baseLogger} use case`);
+      this.logger.info(`${this.baseLogger("upload")} use case`);
       await this.upStreamUseCase.execute({
         stream: call,
         onData: function (chunk: UpstreamMessage) {
@@ -50,10 +51,10 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
       const response = GrpcPresenter.toEmpty();
 
-      this.logger.info(`${this.baseLogger} finished`);
+      this.logger.info(`${this.baseLogger("upload")} finished`);
       cb(null, response);
     } catch (error) {
-      this.logger.error(`${this.baseLogger} error`);
+      this.logger.error(`${this.baseLogger("upload")} error`);
       this.logger.error(String(error));
       cb(GrpcPresenter.toError(error), null);
     }
@@ -61,9 +62,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async download(cb: ServerWritableStream<EmptyMessage, DownstreamMessage>): Promise<void> {
     try {
-      this.logger.info(`${this.baseLogger} receive call`);
+      this.logger.info(`${this.baseLogger("download")} receive call`);
 
-      this.logger.info(`${this.baseLogger} use case`);
+      this.logger.info(`${this.baseLogger("download")} use case`);
       const stream = this.downStreamUseCase.execute();
 
       await this.sendByStream(
@@ -75,9 +76,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
         stream,
       );
 
-      this.logger.info(`${this.baseLogger} finished`);
+      this.logger.info(`${this.baseLogger("download")} finished`);
     } catch (error) {
-      this.logger.error(`${this.baseLogger} error`);
+      this.logger.error(`${this.baseLogger("download")} error`);
       this.logger.error(String(error));
       cb.destroy(GrpcPresenter.toError(error));
     }
@@ -85,9 +86,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
 
   async duplex(call: ServerDuplexStream<UpstreamMessage, DownstreamMessage>): Promise<void> {
     try {
-      this.logger.info(`${this.baseLogger} receive call`);
+      this.logger.info(`${this.baseLogger("duplex")} receive call`);
 
-      this.logger.info(`${this.baseLogger} use case`);
+      this.logger.info(`${this.baseLogger("duplex")} use case`);
       const stream = await this.duplexStreamUseCase.execute({
         stream: call,
         onData: function (chunk: UpstreamMessage) {
@@ -104,9 +105,9 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
         stream,
       );
 
-      this.logger.info(`${this.baseLogger} finished`);
+      this.logger.info(`${this.baseLogger("duplex")} finished`);
     } catch (error) {
-      this.logger.error(`${this.baseLogger} error`);
+      this.logger.error(`${this.baseLogger("duplex")} error`);
       this.logger.error(String(error));
       call.destroy(GrpcPresenter.toError(error));
     }
