@@ -40,7 +40,7 @@ export class CallFactory {
         logger.error(JSON.stringify({ code, method: req.method, url: req.url, error: err }));
         logger.error(JSON.stringify({ params: req.params, headers: req.headers, body: req.body }));
 
-        res.status(code).send({ message });
+        res.status(code).send(error);
       } finally {
         const rsCode = code > 204 ? colors.error(`[${code}]`) : colors.success(`[${code}]`);
         const duration = `${colors.gray(`${Date.now() - start} ms`)}`;
