@@ -8,8 +8,8 @@ export class GrpcPresenter {
   }
 
   static toError(error: Error): GrpcValidationError | GrpcNotFound | GrpcInternalServerError {
-    if (error instanceof ValidationError) return new GrpcValidationError(error.message, error.fields);
-    if (error instanceof NotFoundError) return new GrpcNotFound(error.message, error.fields);
+    if (error instanceof ValidationError) return new GrpcValidationError(error.message, error.reports);
+    if (error instanceof NotFoundError) return new GrpcNotFound(error.message, error.reports);
     return new GrpcInternalServerError(error.message, error.stack);
   }
 }

@@ -4,30 +4,29 @@ export interface IErrorReport {
 }
 
 export abstract class CustomError extends Error {
-  constructor(message: string, fields: IErrorReport[]) {
+  constructor(message: string, reports?: IErrorReport[]) {
     super(message);
-    this.fields = fields;
+    this.reports = reports || [];
   }
 
-  name: string;
   code: number;
-  fields?: IErrorReport[];
+  reports?: IErrorReport[];
 }
 
 export class ValidationError extends CustomError {
-  constructor(fields: IErrorReport[], message = "Parameters validation error.") {
-    super(message, fields);
+  constructor(reports: IErrorReport[], message = "Parameters validation error.") {
+    super(message, reports);
   }
 }
 
 export class NotFoundError extends CustomError {
-  constructor(fields: IErrorReport[], message = "Parameters not found error.") {
-    super(message, fields);
+  constructor(reports: IErrorReport[], message = "Parameters not found error.") {
+    super(message, reports);
   }
 }
 
 export class InternalServer extends CustomError {
-  constructor(fields?: IErrorReport[], message = "Internal Server Error.") {
-    super(message, fields);
+  constructor(message = "Internal Server Error.") {
+    super(message);
   }
 }

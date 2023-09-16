@@ -7,7 +7,7 @@ import { Stream } from "stream";
 import { IResquestHandler } from "../interfaces/IRoute";
 import { IErrorResponse } from "../interfaces/IErrorResponse";
 
-export class CallFactory {
+export class ApiCallFactory {
   static createHandle(logger: ILogger, route: IResquestHandler) {
     return async function (req: Request, res: Response, next: NextFunction) {
       let code = 200;
@@ -21,7 +21,7 @@ export class CallFactory {
         if (response instanceof Stream) return;
         if (isEmpty(response)) code = 201;
         res.status(code).send(response);
-      } catch (err: unknown) {
+      } catch (err: any) {
         const { message, reports } = err as CustomError;
 
         let error: IErrorResponse;

@@ -10,7 +10,7 @@ import { colors } from "@core/Logger";
 
 import { ApiMiddleware } from "./middlewares/ApiMiddleware";
 import { RouteFactory } from "./factories/RouteFactory";
-import { CallFactory } from "./factories/CallFactory";
+import { ApiCallFactory } from "./factories/ApiCallFactory";
 
 export default class ApiModule extends Module {
   server: Server;
@@ -75,7 +75,7 @@ export default class ApiModule extends Module {
         const path = concatPaths(prefix, controller.path, route.path);
         const log = `${route.method.toUpperCase()} ${path}`;
         this.logger.info(`📂  [ApiModule] [Server] [Controller] [route] => ${colors.info(log)}`);
-        router[route.method](path, ...middlewares, CallFactory.createHandle(this.logger, route.handler));
+        router[route.method](path, ...middlewares, ApiCallFactory.createHandle(this.logger, route.handler));
       }
 
       this.app.use(router);

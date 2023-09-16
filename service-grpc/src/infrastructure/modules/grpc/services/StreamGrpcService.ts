@@ -1,6 +1,6 @@
 import TYPES from "@core/Types";
 import { inject, injectable } from "inversify";
-import { colors, ILogger } from "@core/Logger";
+import { ILogger } from "@core/Logger";
 import {
   ServerReadableStream,
   ServerWritableStream,
@@ -17,6 +17,7 @@ import { StreamGrpcPresenter } from "../presenter/StreamGrpcPresenter";
 import { GrpcPresenter } from "../presenter/GrpcPresenter";
 import { IStreamServiceServer, UpstreamMessage, DownstreamMessage, EmptyMessage } from "../../../../../../proto/dist";
 import { StreamGrpcAdapter } from "../adapter/StreamGrpcAdapter";
+import { ValidationError } from "@core/error/errors";
 
 @injectable()
 export default class StreamGrpcService extends StreamGrpcAdapter implements IStreamServiceServer {
@@ -31,84 +32,50 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
     super();
   }
 
-  private baseLogger = (fun: string) => `📨  [GrpcModule] [Server] => ${colors.info(`StreamGrpcService.${fun}`)} `;
-
   async upload(
     call: ServerReadableStream<UpstreamMessage, EmptyMessage>,
     cb: sendUnaryData<EmptyMessage>,
   ): Promise<void> {
-    try {
-      this.logger.info(`${this.baseLogger("upload")} ${colors.gray("receive call")}`);
+    await this.upStreamUseCase.execute({
+      stream: call,
+      onData: function (chunk: UpstreamMessage) {
+        return StreamGrpcController.fromUpstreamMessage(chunk);
+      },
+    });
 
-      this.logger.info(`${this.baseLogger("upload")} ${colors.gray("use case")}`);
-      await this.upStreamUseCase.execute({
-        stream: call,
-        onData: function (chunk: UpstreamMessage) {
-          return StreamGrpcController.fromUpstreamMessage(chunk);
-        },
-      });
+    const response = GrpcPresenter.toEmpty();
 
-      const response = GrpcPresenter.toEmpty();
-
-      this.logger.info(`${this.baseLogger("upload")} ${colors.gray("finished")}`);
-      cb(null, response);
-    } catch (error) {
-      this.logger.error(`${this.baseLogger("upload")} ${colors.gray("error")}`);
-      this.logger.error(String(error));
-      cb(GrpcPresenter.toError(error), null);
-    }
+    cb(null, response);
   }
 
-  async download(cb: ServerWritableStream<EmptyMessage, DownstreamMessage>): Promise<void> {
-    try {
-      this.logger.info(`${this.baseLogger("download")} ${colors.gray("receive call")}`);
+  async download(call: ServerWritableStream<EmptyMessage, DownstreamMessage>): Promise<void> {
+    const stream = this.downStreamUseCase.execute();
 
-      this.logger.info(`${this.baseLogger("download")} ${colors.gray("use case")}`);
-      const stream = this.downStreamUseCase.execute();
-
-      await this.sendByStream(
-        cb,
-        function (chunk: Uint8Array) {
-          const data = Buffer.from(chunk).toString("base64");
-          return StreamGrpcPresenter.toDownstreamMessage({ data });
-        },
-        stream,
-      );
-
-      this.logger.info(`${this.baseLogger("download")} ${colors.gray("finished")}`);
-    } catch (error) {
-      this.logger.error(`${this.baseLogger("download")} ${colors.gray("error")}`);
-      this.logger.error(String(error));
-      cb.destroy(GrpcPresenter.toError(error));
-    }
+    await this.sendByStream(
+      call,
+      function (chunk: Uint8Array) {
+        const data = Buffer.from(chunk).toString("base64");
+        return StreamGrpcPresenter.toDownstreamMessage({ data });
+      },
+      stream,
+    );
   }
 
   async duplex(call: ServerDuplexStream<UpstreamMessage, DownstreamMessage>): Promise<void> {
-    try {
-      this.logger.info(`${this.baseLogger("duplex")} ${colors.gray("receive call")}`);
+    const stream = await this.duplexStreamUseCase.execute({
+      stream: call,
+      onData: function (chunk: UpstreamMessage) {
+        return StreamGrpcController.fromUpstreamMessage(chunk);
+      },
+    });
 
-      this.logger.info(`${this.baseLogger("duplex")} ${colors.gray("use case")}`);
-      const stream = await this.duplexStreamUseCase.execute({
-        stream: call,
-        onData: function (chunk: UpstreamMessage) {
-          return StreamGrpcController.fromUpstreamMessage(chunk);
-        },
-      });
-
-      await this.sendByStream(
-        call,
-        function (chunk: Uint8Array) {
-          const data = Buffer.from(chunk).toString("base64");
-          return StreamGrpcPresenter.toDownstreamMessage({ data });
-        },
-        stream,
-      );
-
-      this.logger.info(`${this.baseLogger("duplex")} ${colors.gray("finished")}`);
-    } catch (error) {
-      this.logger.error(`${this.baseLogger("duplex")} ${colors.gray("error")}`);
-      this.logger.error(String(error));
-      call.destroy(GrpcPresenter.toError(error));
-    }
+    await this.sendByStream(
+      call,
+      function (chunk: Uint8Array) {
+        const data = Buffer.from(chunk).toString("base64");
+        return StreamGrpcPresenter.toDownstreamMessage({ data });
+      },
+      stream,
+    );
   }
 }
