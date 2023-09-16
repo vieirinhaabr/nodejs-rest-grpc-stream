@@ -1,22 +1,13 @@
 import { ILogger, colors } from "@core/Logger";
 import { CustomError, NotFoundError, ValidationError } from "@core/error/errors";
 import { GrpcDefaultError, GrpcInternalServerError, GrpcNotFound, GrpcValidationError } from "@core/error/grpc";
-import {
-  ServerDuplexStream,
-  ServerReadableStream,
-  ServerUnaryCall,
-  ServerWritableStream,
-  sendUnaryData,
-} from "@grpc/grpc-js";
+import { sendUnaryData } from "@grpc/grpc-js";
 import { get } from "lodash";
-
-type IGrpcCall<P, R> = ServerUnaryCall<P, R> | IGrpcStreamingCall<P, R>;
-
-type IGrpcStreamingCall<P, R> = ServerReadableStream<P, R> | ServerWritableStream<P, R> | ServerDuplexStream<P, R>;
+import { IGrpcCall, IGrpcFunction, IGrpcStreamingCall } from "../interfaces/IGrpc";
 
 export class GrpcCallFactory {
-  static createHandle<F>(logger: ILogger, func: F): F {
-    return async function (call: IGrpcCall<any, any>, cb: sendUnaryData<any>): Promise<void> {
+  static createHandle<R, P>(logger: ILogger, func: IGrpcFunction<R, P>): IGrpcFunction<R, P> {
+    return async function (call: IGrpcCall<R, P>, cb: sendUnaryData<P>): Promise<void> {
       let error: GrpcDefaultError;
       const start = Date.now();
       const rawPath = get(call, "call.handler.path");
@@ -36,13 +27,13 @@ export class GrpcCallFactory {
         logger.error(JSON.stringify({ path: rawPath, error: err }));
 
         if (cb) cb(error, null);
-        else (call as IGrpcStreamingCall<any, any>).destroy(error);
+        else (call as IGrpcStreamingCall<R, P>).destroy(error);
       } finally {
         const rsCode = error ? colors.error(`[ERROR]`) : colors.success(`[OK]`);
         const duration = `${colors.gray(`${Date.now() - start} ms`)}`;
 
         logger.info(`${id} <= ${rsCode} ${path} ${duration}`);
       }
-    } as F;
+    };
   }
 }
