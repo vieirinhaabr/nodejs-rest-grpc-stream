@@ -52,7 +52,6 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
       call,
       function (chunk: Uint8Array) {
         const data = Buffer.from(chunk).toString("base64");
-        //const data = Buffer.from(chunk).toString("utf-8"); // FIX
         return StreamGrpcPresenter.toDownstreamMessage({ data });
       },
       stream,

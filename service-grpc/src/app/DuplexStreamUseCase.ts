@@ -48,7 +48,7 @@ export default class DuplexStreamUseCase implements IDuplexStreamUseCase {
     });
 
     const downPath = __dirname + "/../../arc/" + "download.csv";
-    const upStream = createReadStream(downPath);
+    const upStream = createReadStream(downPath, { highWaterMark: 64 * 1024 });
     return upStream;
   }
 }

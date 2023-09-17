@@ -24,6 +24,7 @@ export default class DownStreamGrpcAction implements IDownStreamGrpcAction {
         const data = String(typeof chunk === "object" ? StreamGrpcPresenter.fromDownstreamMessage(chunk) : chunk);
         callback(null, data);
       },
+      highWaterMark: 64 * 1024,
     });
 
     call.on("error", (err: Error) => call.emit("data", `STREAM_ERROR => ${err}`));
