@@ -66,7 +66,6 @@ export default function Content() {
   };
 
   const onDuplex = async (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("tsdgfds");
     try {
       setLoading(true);
       const args = handleFileUpload(event);
