@@ -46,43 +46,7 @@ export default function Content() {
     }
   };
 
-  const handleFileDownloadByChunks = (data: string) => {
-    let b64 = "";
-    data
-      .split("$$_stream_chunk_$$")
-      .filter((chunk) => chunk !== "")
-      .forEach((chunk) => {
-        const str = Buffer.from(chunk).toString();
-        const decoded = Buffer.from(str, "base64").toString();
-
-        b64 += decoded;
-      });
-
-    return b64;
-  };
-
-  const onDownloadHasB64 = async () => {
-    try {
-      setLoading(true);
-
-      const response = await axios<any, AxiosResponse<string>>({
-        method: "get",
-        url: `${url}/v1/stream/downstream`,
-      });
-
-      const data = handleFileDownloadByChunks(response.data);
-
-      const { blob, name } = mapFileFromAxiosResponse(data, response);
-      FileSaver.saveAs(blob, name);
-    } catch (error) {
-      console.error(error);
-      alert(`Upload error`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onDownloadHasUtf8 = async () => {
+  const onDownload = async () => {
     try {
       setLoading(true);
 
@@ -113,9 +77,7 @@ export default function Content() {
         url: `${url}/v1/stream/duplex`,
       });
 
-      const data = handleFileDownloadByChunks(response.data);
-
-      const { blob, name } = mapFileFromAxiosResponse(data, response);
+      const { blob, name } = mapFileFromAxiosResponse(response.data, response);
       FileSaver.saveAs(blob, name);
     } catch (error) {
       console.error(error);
@@ -157,22 +119,13 @@ export default function Content() {
             loading={loading}
             variant="contained"
             size="large"
-            onClick={onDownloadHasB64}
+            onClick={onDownload}
           >
-            Download (Base64)
-          </LoadingButton>
-          <LoadingButton
-            className="bg-green-700"
-            color="success"
-            loading={loading}
-            variant="contained"
-            size="large"
-            onClick={onDownloadHasUtf8}
-          >
-            Download (UTF-8)
+            Download
           </LoadingButton>
           <input
             id="duplex-stream"
+            hidden
             multiple
             accept=".csv, .txt"
             type="file"
@@ -180,6 +133,7 @@ export default function Content() {
           />
           <label htmlFor="duplex-stream">
             <LoadingButton
+              component="span"
               className="bg-orange-700"
               color="warning"
               loading={loading}
