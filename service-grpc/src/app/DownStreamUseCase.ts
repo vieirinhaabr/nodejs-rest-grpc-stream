@@ -6,7 +6,7 @@ import { injectable } from "inversify";
 export default class DownStreamUseCase implements IDownStreamUseCase {
   execute(): IDownStreamResponse {
     const path = __dirname + "/../../arc/" + "download.csv";
-    const stream = createReadStream(path);
+    const stream = createReadStream(path, { highWaterMark: 64 * 1024 });
     return stream;
   }
 }

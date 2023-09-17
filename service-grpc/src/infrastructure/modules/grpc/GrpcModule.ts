@@ -37,13 +37,13 @@ export default class GrpcModule extends Module {
       this.container.bind(Symbol.for(name)).to(implementation);
       const service = this.container.get<any>(Symbol.for(name));
 
-      const router: typeof definition = {};
+      const routes: typeof definition = {};
       for (const [route, { path }] of Object.entries(definition) as any) {
         this.logger.info(`📂  ${pLog} [route] => ${colors.info(path)}`);
-        router[route] = GrpcCallFactory.createHandle(this.logger, service[route].bind(service));
+        routes[route] = GrpcCallFactory.createHandle(this.logger, service[route].bind(service));
       }
 
-      this.server.addService(definition, router);
+      this.server.addService(definition, routes);
     }
 
     const { port } = this.config.grpc;

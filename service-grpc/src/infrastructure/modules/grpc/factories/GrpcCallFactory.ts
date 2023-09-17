@@ -24,7 +24,7 @@ export class GrpcCallFactory {
         else error = new GrpcInternalServerError(message, stack);
 
         logger.error(`${id} <> ${path}`);
-        logger.error(JSON.stringify({ path: rawPath, error: err }));
+        logger.error(JSON.stringify({ path: rawPath, error }));
 
         if (cb) cb(error, null);
         else (call as IGrpcStreamingCall<R, P>).destroy(error);

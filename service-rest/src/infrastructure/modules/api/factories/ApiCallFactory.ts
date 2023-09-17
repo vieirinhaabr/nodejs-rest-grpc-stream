@@ -22,22 +22,22 @@ export class ApiCallFactory {
         if (isEmpty(response)) code = 201;
         res.status(code).send(response);
       } catch (err: any) {
-        const { message, reports } = err as CustomError;
+        const { message, reports, stack } = err as CustomError;
 
         let error: IErrorResponse;
         if (err instanceof ValidationError) {
           code = 412;
-          error = { message, reports };
+          error = { message, reports, stack };
         } else if (err instanceof NotFoundError) {
           code = 412;
-          error = { message, reports };
+          error = { message, reports, stack };
         } else {
           code = 500;
-          error = { message };
+          error = { message, stack };
         }
 
         logger.error(`${id} <> ${path}`);
-        logger.error(JSON.stringify({ code, method: req.method, url: req.url, error: err }));
+        logger.error(JSON.stringify({ code, method: req.method, url: req.url, error }));
         logger.error(JSON.stringify({ params: req.params, headers: req.headers, body: req.body }));
 
         res.status(code).send(error);

@@ -1,6 +1,5 @@
 import TYPES from "@core/Types";
 import { inject, injectable } from "inversify";
-import { ILogger } from "@core/Logger";
 import {
   ServerReadableStream,
   ServerWritableStream,
@@ -17,14 +16,12 @@ import { StreamGrpcPresenter } from "../presenter/StreamGrpcPresenter";
 import { GrpcPresenter } from "../presenter/GrpcPresenter";
 import { IStreamServiceServer, UpstreamMessage, DownstreamMessage, EmptyMessage } from "../../../../../../proto/dist";
 import { StreamGrpcAdapter } from "../adapter/StreamGrpcAdapter";
-import { ValidationError } from "@core/error/errors";
 
 @injectable()
 export default class StreamGrpcService extends StreamGrpcAdapter implements IStreamServiceServer {
   [name: string]: UntypedHandleCall | any;
 
   constructor(
-    @inject(TYPES.Logger) private logger: ILogger,
     @inject(TYPES.UpStreamUseCase) private upStreamUseCase: IUpStreamUseCase,
     @inject(TYPES.DownStreamUseCase) private downStreamUseCase: IDownStreamUseCase,
     @inject(TYPES.DuplexStreamUseCase) private duplexStreamUseCase: IDuplexStreamUseCase,
@@ -55,6 +52,7 @@ export default class StreamGrpcService extends StreamGrpcAdapter implements IStr
       call,
       function (chunk: Uint8Array) {
         const data = Buffer.from(chunk).toString("base64");
+        //const data = Buffer.from(chunk).toString("utf-8"); // FIX
         return StreamGrpcPresenter.toDownstreamMessage({ data });
       },
       stream,

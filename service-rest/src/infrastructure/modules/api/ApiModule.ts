@@ -7,6 +7,7 @@ import express, { Express } from "express";
 import { createServer, Server } from "http";
 import concatPaths from "@utils/concatPaths";
 import { colors } from "@core/Logger";
+import cors from "cors";
 
 import { ApiMiddleware } from "./middlewares/ApiMiddleware";
 import { RouteFactory } from "./factories/RouteFactory";
@@ -27,6 +28,7 @@ export default class ApiModule extends Module {
 
     this.app = express();
     this.app.use(express.json());
+    this.app.use(cors());
 
     this.server = createServer(this.app);
   }
